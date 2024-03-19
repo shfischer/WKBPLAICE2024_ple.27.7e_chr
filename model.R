@@ -33,7 +33,7 @@ lngth <- read.taf("data/length_data.csv")
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
 ### use catch advice value for 2022 (no update)
-A <- A(catch$advice[catch$year == 2022], units = "tonnes", 
+A <- A(catch[catch$year <= 2022, ], units = "tonnes", 
        basis = "advice", advice_metric = "catch")
 
 ### ------------------------------------------------------------------------ ###
