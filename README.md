@@ -1,15 +1,14 @@
-2023_ple.27.7e_assessment
+2024_ple.27.7e_assessment
 ================
 
-## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WGCSE 2023 (update only, no new advice!).
+## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WGCSE 2024 - ***work in progress***
 
 This repository recreates the stock assessment for plaice (*Pleuronectes
 platessa*) in Division 7.e (western English Channel) in `R` from WGCSE
 2023.
 
 The advice for this plaice stock is biennial and was last given one year
-ago at WGCSE 2022. This repository is only a data update and does not
-calculate a new advice value.
+ago at WGCSE 2022. This repository (2024) is a new assessment.
 
 ## R packages
 
