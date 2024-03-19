@@ -2,9 +2,9 @@
 ### Preprocess data, write TAF data tables ####
 ### ------------------------------------------------------------------------ ###
 
-## Before: bootstrap/data/FSP7e.csv
-##         bootstrap/data/advice/advice_history.csv
-##         bootstrap/data/InterCatch_length.csv
+## Before: boot/data/FSP7e.csv
+##         boot/data/advice/advice_history.csv
+##         boot/data/InterCatch_length.csv
 ## After:  data/idx.csv
 ##         data/advice_history.csv
 ##         data/length_data.rds
@@ -23,7 +23,7 @@ mkdir("data")
 ### - biomass at age (standardised)
 
 ### load data from csv
-idxB <- read.csv("bootstrap/data/FSP_biomass.csv")
+idxB <- read.csv("boot/data/FSP_biomass.csv")
 
 ### only ages 2-8 are used -> sum up biomass
 idxB <- cbind(idxB["year"], 
@@ -38,7 +38,7 @@ saveRDS(idxB, file = "data/idx.rds")
 ### catch and advice data ####
 ### ------------------------------------------------------------------------ ###
 
-catch <- read.csv("bootstrap/data/advice_history.csv")
+catch <- read.csv("boot/data/advice_history.csv")
 names(catch)[1] <- "year"
 write.taf(catch, file = "data/advice_history.csv")
 saveRDS(catch, file = "data/advice_history.rds")
@@ -49,7 +49,7 @@ saveRDS(catch, file = "data/advice_history.rds")
 ### raised data from InterCatch
 
 ### load data
-lngth_full <- read.csv("bootstrap/data/InterCatch_length.csv")
+lngth_full <- read.csv("boot/data/InterCatch_length.csv")
 
 ### summarise data
 lngth <- lngth_full %>% 
