@@ -9,7 +9,7 @@
 ##         data/advice_history.csv
 ##         data/length_data.rds
 
-library(TAF)
+library(icesTAF)
 library(tidyr)
 library(dplyr)
 

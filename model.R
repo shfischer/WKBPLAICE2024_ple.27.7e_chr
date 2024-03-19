@@ -7,7 +7,7 @@
 ##         data/length_data.rds
 ## After:  model/advice.rds
 
-library(TAF)
+library(icesTAF)
 library(cat3advice)
 library(dplyr)
 

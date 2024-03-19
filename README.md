@@ -22,7 +22,7 @@ They can be installed with:
 
 ``` r
 ### list with required packages
-req_pkgs <- c("TAF")
+req_pkgs <- c("icesTAF")
 ### install/update packages
 install.packages(req_pkgs)
 ```
@@ -45,7 +45,7 @@ taf.boot()
 Alternatively, they can be manually installed from GitHub with
 
 ``` r
-TAF::taf.libPaths() # install packages into local TAF library
+icesTAF::taf.libPaths() # install packages into local TAF library
 remotes::install_github("shfischer/cat3advice")
 ```
 
@@ -56,7 +56,7 @@ repository, navigate into the repository with R and run:
 
 ``` r
 ### load the icesTAF package
-library(TAF)
+library(icesTAF)
 ### load data and install R packages
 taf.boot()
 ### run all scripts

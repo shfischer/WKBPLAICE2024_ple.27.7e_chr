@@ -25,7 +25,7 @@ They can be installed with:
 
 ```{r, eval = FALSE}
 ### list with required packages
-req_pkgs <- c("TAF")
+req_pkgs <- c("icesTAF")
 ### install/update packages
 install.packages(req_pkgs)
 ```
@@ -45,7 +45,7 @@ taf.boot()
 Alternatively, they can be manually installed from GitHub with
 
 ```{r, eval = FALSE}
-TAF::taf.libPaths() # install packages into local TAF library
+icesTAF::taf.libPaths() # install packages into local TAF library
 remotes::install_github("shfischer/cat3advice")
 ```
 
@@ -55,7 +55,7 @@ The easiest way to run the assessment is to clone or download this repository, n
 
 ```{r, eval = FALSE}
 ### load the icesTAF package
-library(TAF)
+library(icesTAF)
 ### load data and install R packages
 taf.boot()
 ### run all scripts

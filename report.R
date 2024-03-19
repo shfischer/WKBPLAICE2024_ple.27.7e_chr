@@ -7,7 +7,7 @@
 ## After:  figures in report/figures/
 ##         tables in report/tables
 
-library(TAF)
+library(icesTAF)
 library(cat3advice)
 library(ggplot2)
 
