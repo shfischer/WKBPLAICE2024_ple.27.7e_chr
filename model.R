@@ -8,6 +8,7 @@
 ## After:  model/advice.rds
 
 library(icesTAF)
+taf.libPaths()
 library(cat3advice)
 library(dplyr)
 

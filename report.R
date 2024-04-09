@@ -8,6 +8,7 @@
 ##         tables in report/tables
 
 library(icesTAF)
+taf.libPaths()
 library(cat3advice)
 library(ggplot2)
 

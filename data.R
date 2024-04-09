@@ -10,6 +10,7 @@
 ##         data/length_data.rds
 
 library(icesTAF)
+taf.libPaths()
 library(tidyr)
 library(dplyr)
 
