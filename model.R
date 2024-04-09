@@ -33,23 +33,22 @@ lngth <- read.taf("data/length_data.csv")
 ### ------------------------------------------------------------------------ ###
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
-### use catch advice value for 2022 (no update)
-A <- A(catch[catch$year <= 2022, ], units = "tonnes", 
+### use last catch advice (advice given in 2022 for 2023 and 2024)
+A <- A(catch[catch$year <= 2024, ], units = "tonnes", 
        basis = "advice", advice_metric = "catch")
 
 ### ------------------------------------------------------------------------ ###
 ### r - biomass index trend/ratio ####
 ### ------------------------------------------------------------------------ ###
 ### 2 over 3 ratio
-### add 1-year lag with n0=1 to keep last year's index ratio
-r <- rfb_r(idxB, units = "kg/hr", n0 = 1)
+r <- rfb_r(idxB, units = "kg/hr")
 
 ### ------------------------------------------------------------------------ ###
 ### b - biomass safeguard ####
 ### ------------------------------------------------------------------------ ###
-### keep reference year for Itrigger from last year
-### add 1-year lag with n0=1 to keep last year's index ratio
-b <- rfb_b(idxB, units = "kg/hr", yr_ref = 2007, n0 = 1)
+### do not redefine biomass trigger Itrigger and keep value defined in 2022
+### Itrigger based on Iloss (2007)
+b <- rfb_b(idxB, units = "kg/hr", yr_ref = 2007)
 
 ### ------------------------------------------------------------------------ ###
 ### f - length-based indicator/fishing pressure proxy ####
@@ -57,20 +56,21 @@ b <- rfb_b(idxB, units = "kg/hr", yr_ref = 2007, n0 = 1)
 
 ### calculate annual length at first capture - for information only
 lc_annual <- Lc(lngth, units = "mm")
-### keep Lc calculation from last year 
-### (pool 2017-2021 data, exclude new 2022 data)
+
+### Lc was defined at WGCSE 2022 by using pooled data from 2017:2021
+### keep this definition (do not update Lc)
 lc <- Lc(lngth, pool = 2017:2021, units = "mm")
 
 ### mean annual catch length above Lc
 lmean <- Lmean(lngth, Lc = lc, units = "mm")
 
-### reference length LF=M - keep value calculated last year
+### reference length LF=M - keep value calculated at WGCSE 2022
 ### Linf calculated by fitting von Bertalanffy model to age-length data
-lref <- Lref(basis = "LF=M", Lc = lc, Linf = 585, units = "mm")
+#lref <- Lref(basis = "LF=M", Lc = lc, Linf = 585, units = "mm")
+lref <- Lref(value = 344, basis = "LF=M", units = "mm")
 
 ### length indicator
-### add 1-year lag with n0=1 to keep last year's index ratio
-f <- rfb_f(Lmean = lmean, Lref = lref, units = "mm", n0 = 1)
+f <- rfb_f(Lmean = lmean, Lref = lref, units = "mm")
 
 ### ------------------------------------------------------------------------ ###
 ### multiplier ####
