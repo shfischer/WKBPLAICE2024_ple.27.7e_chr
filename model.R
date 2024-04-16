@@ -88,7 +88,7 @@ m <- rfb_m(k = 0.11)
 advice <- rfb(A = A, r = r, f = f, b = b, m = m,
               cap = "conditional", cap_upper = 20, cap_lower = -30,
               frequency = "biennial", 
-              discard_rate = 26.71693)
+              discard_rate = 26.43167)
 
 ### ------------------------------------------------------------------------ ###
 ### save output ####
