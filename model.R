@@ -57,9 +57,10 @@ b <- rfb_b(idxB, units = "kg/hr", yr_ref = 2007)
 ### calculate annual length at first capture - for information only
 lc_annual <- Lc(lngth, units = "mm")
 
-### Lc was defined at WGCSE 2022 by using pooled data from 2017:2021
+### Lc was defined at WGCSE 2022 by using data from 2017:2021
 ### keep this definition (do not update Lc)
-lc <- Lc(lngth, pool = 2017:2021, units = "mm")
+#lc <- Lc(lngth, pool = 2017:2021, units = "mm")
+lc <- Lc(264, units = "mm")
 
 ### mean annual catch length above Lc
 lmean <- Lmean(lngth, Lc = lc, units = "mm")
@@ -67,7 +68,7 @@ lmean <- Lmean(lngth, Lc = lc, units = "mm")
 ### reference length LF=M - keep value calculated at WGCSE 2022
 ### Linf calculated by fitting von Bertalanffy model to age-length data
 #lref <- Lref(basis = "LF=M", Lc = lc, Linf = 585, units = "mm")
-lref <- Lref(value = 344, basis = "LF=M", units = "mm")
+lref <- Lref(value = 344.2867278973251, basis = "LF=M", units = "mm")
 
 ### length indicator
 f <- rfb_f(Lmean = lmean, Lref = lref, units = "mm")
