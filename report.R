@@ -44,9 +44,9 @@ ggsave("report/figures/rfb_rb.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
 ### f - length at first capture
-plot(advice@f@Lmean@Lc)
-ggsave("report/figures/rfb_Lc.png", width = 15, height = 10, units = "cm",
-       dpi = 300, type = "cairo")
+# plot(advice@f@Lmean@Lc)
+# ggsave("report/figures/rfb_Lc.png", width = 15, height = 10, units = "cm",
+#        dpi = 300, type = "cairo")
 ### annual values
 plot(lc_annual)
 ggsave("report/figures/rfb_Lc_annual.png", width = 20, height = 15, units = "cm",
@@ -59,6 +59,10 @@ ggsave("report/figures/rfb_Lmean.png", width = 15, height = 10, units = "cm",
 
 ### f - length indicator
 plot(advice@f)
+ggsave("report/figures/rfb_f.png", width = 10, height = 6, units = "cm",
+       dpi = 300, type = "cairo")
+### f - inverse length indicator
+plot(advice@f, inverse = TRUE)
 ggsave("report/figures/rfb_f.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
