@@ -63,7 +63,7 @@ ggsave("report/figures/rfb_f.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 ### f - inverse length indicator
 plot(advice@f, inverse = TRUE)
-ggsave("report/figures/rfb_f.png", width = 10, height = 6, units = "cm",
+ggsave("report/figures/rfb_f_inverse.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
 ### ------------------------------------------------------------------------ ###
