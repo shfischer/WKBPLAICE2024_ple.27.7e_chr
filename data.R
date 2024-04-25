@@ -44,6 +44,9 @@ names(catch)[1] <- "year"
 write.taf(catch, file = "data/advice_history.csv")
 saveRDS(catch, file = "data/advice_history.rds")
 
+catch_7d <- read.csv("boot/data/ple7d_STF_removals_from_7e_2024.csv")
+write.taf(catch_7d, file = "data/catch_7d.csv")
+
 ### ------------------------------------------------------------------------ ###
 ### length data ####
 ### ------------------------------------------------------------------------ ###

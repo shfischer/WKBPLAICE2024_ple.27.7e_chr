@@ -20,7 +20,7 @@ mkdir("model")
 
 ### history of catch and advice
 catch <- read.taf("data/advice_history.csv")
-catch <- catch %>%
+catch_A <- catch %>%
   select(year, advice = advice_catch_stock, discards = ICES_discards_stock,
          landings = ICES_landings_stock , catch = ICES_catch_stock)
 
@@ -34,7 +34,7 @@ lngth <- read.taf("data/length_data.csv")
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
 ### use last catch advice (advice given in 2022 for 2023 and 2024)
-A <- A(catch[catch$year <= 2024, ], units = "tonnes", 
+A <- A(catch_A[catch_A$year <= 2024, ], units = "tonnes", 
        basis = "advice", advice_metric = "catch")
 
 ### ------------------------------------------------------------------------ ###
@@ -82,6 +82,18 @@ f <- rfb_f(Lmean = lmean, Lref = lref, units = "mm")
 m <- rfb_m(k = 0.11)
 
 ### ------------------------------------------------------------------------ ###
+### discard rate ####
+### ------------------------------------------------------------------------ ###
+discard_rate <- catch %>%
+  select(year, discards = ICES_discards_stock, landings = ICES_landings_stock,
+         catch = ICES_catch_stock) %>%
+  mutate(discard_rate = discards/catch) %>%
+  filter(year >= 2012) %>%
+  summarise(discard_rate = mean(discard_rate, na.rm = TRUE)) %>% 
+  as.numeric()
+
+
+### ------------------------------------------------------------------------ ###
 ### apply rfb rule - combine elements ####
 ### ------------------------------------------------------------------------ ###
 ### includes consideration of stability clause
@@ -89,7 +101,7 @@ m <- rfb_m(k = 0.11)
 advice <- rfb(A = A, r = r, f = f, b = b, m = m,
               cap = "conditional", cap_upper = 20, cap_lower = -30,
               frequency = "biennial", 
-              discard_rate = 26.43167)
+              discard_rate = discard_rate * 100)
 
 ### ------------------------------------------------------------------------ ###
 ### save output ####
