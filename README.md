@@ -1,7 +1,7 @@
 2024_ple.27.7e_assessment
 ================
 
-## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WGCSE 2024 - ***work in progress***
+## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WGCSE 2024
 
 This repository recreates the stock assessment for plaice (*Pleuronectes
 platessa*) in Division 7.e (western English Channel) in `R` from WGCSE
@@ -12,25 +12,24 @@ ago at WGCSE 2022. This repository (2024) is a new assessment.
 
 ## R packages
 
-The following R packages from CRAN are required to run the assessment:
+The following R packages are needed:
 
 ``` r
-TAF
+icesTAF
+icesAdvice
+dplyr
+tidyr
+ggplot2
+cat3advice
 ```
 
 They can be installed with:
 
 ``` r
-### list with required packages
-req_pkgs <- c("icesTAF")
 ### install/update packages
-install.packages(req_pkgs)
-```
-
-Furthermore, the following packages from GitHub are required:
-
-``` r
-cat3advice
+install.packages(c("icesTAF", "icesAdvice", "dplyr", "tidyr", "ggplot2"))
+### install cat3advice from ICES r-universe
+install.packages("cat3advice", repos = c("https://ices-tools-prod.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 For exact reproducibility, it is recommended to use exactly the same
@@ -39,14 +38,8 @@ automatically installed into a local library when running the TAF
 assessment (see below) or by calling
 
 ``` r
+library(icesTAF)
 taf.boot()
-```
-
-Alternatively, they can be manually installed from GitHub with
-
-``` r
-icesTAF::taf.libPaths() # install packages into local TAF library
-remotes::install_github("shfischer/cat3advice")
 ```
 
 ## Running the assessment
@@ -57,10 +50,12 @@ repository, navigate into the repository with R and run:
 ``` r
 ### load the icesTAF package
 library(icesTAF)
-### load data and install R packages
-taf.boot()
+### load data
+taf.boot(software = FALSE)
+### install R package from SOFTWARE.bib - only if needed
+if (FALSE) taf.boot(software = TRUE, data = FALSE, clean = FALSE)
 ### run all scripts
-sourceAll()
+source.all()
 ```
 
 This code snippet runs the data compilation and assessment and creates
