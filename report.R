@@ -117,6 +117,7 @@ catch_7d <- catch_7d %>%
 ### advice in 7e
 advice_catch_7e <- value(advice) - catch_7d$catch
 advice_discards_7e <- advice_catch_7e * discard_rate_7e
+advice_landings_7e <- advice_catch_7e * (1 - discard_rate_7e)
 
 advice_7e <- paste0(
   paste(rep("-", 80), collapse = ""), "\n",
@@ -143,7 +144,7 @@ advice_7e <- paste0(
          " | ", "\n",
          format("  corresponding to the advice for the stock", width = 48), 
          " | ",
-         format(paste0(round(advice_discards_7e), " tonnes"), width = 29, 
+         format(paste0(round(advice_landings_7e), " tonnes"), width = 29, 
                 justify = "right"),
          "\n"),
   paste(rep("-", 80), collapse = ""), "\n"
