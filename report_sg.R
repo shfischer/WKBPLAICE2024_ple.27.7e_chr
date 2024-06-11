@@ -61,7 +61,9 @@ df_catch <- catch %>%
   select(Year = year, 
          Landings = ICES_landings_stock,
          Discards = ICES_discards_stock) %>%
-  filter(!is.na(Landings))
+  filter(!is.na(Landings)) %>%
+  ### remove discards before 2012 to make ADG happy
+  mutate(Discards = ifelse(Year < 2012, NA, Discards))
 df_idx <- advice@r@idx %>%
   select(Year = year, StockSize = index)
 df_f <- advice@f@indicator %>%
@@ -123,7 +125,7 @@ if (isTRUE(verbose)) {
   
   ### upload 
   key_new <- uploadStock(info = stk_info, fishdata = stk_data, verbose = TRUE)
-  ### key_new <- 1881
+  ### key_new <- 19051
   # findAssessmentKey('ple.27.7e', ass_yr, full = TRUE)$AssessmentKey
   
   ### plots and settings not working properly...
