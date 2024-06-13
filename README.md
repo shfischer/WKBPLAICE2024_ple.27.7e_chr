@@ -5,7 +5,7 @@
 
 This repository recreates the stock assessment for plaice (*Pleuronectes
 platessa*) in Division 7.e (western English Channel) in `R` from WGCSE
-2023.
+2024.
 
 The advice for this plaice stock is biennial and was last given one year
 ago at WGCSE 2022. This repository (2024) is a new assessment.
