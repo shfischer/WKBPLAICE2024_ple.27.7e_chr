@@ -47,25 +47,3 @@ saveRDS(catch, file = "data/advice_history.rds")
 catch_7d <- read.csv("boot/data/ple7d_STF_removals_from_7e_2024.csv")
 write.taf(catch_7d, file = "data/catch_7d.csv")
 
-### ------------------------------------------------------------------------ ###
-### length data ####
-### ------------------------------------------------------------------------ ###
-### raised data from InterCatch
-
-### load data
-lngth_full <- read.csv("boot/data/InterCatch_length.csv")
-
-### summarise data
-lngth <- lngth_full %>% 
-  ### treat "BMS landing"/"Logbook Registered Discard" as discards
-  mutate(CatchCategory = ifelse(CatchCategory == "Landings", 
-                                "Landings", "Discards")) %>%
-  #filter(CatchCategory %in% c("Discards", "Landings")) %>%
-  select(year = Year, catch_category = CatchCategory, length = AgeOrLength, 
-         numbers = CANUM) %>%
-  group_by(year, catch_category, length) %>%
-  summarise(numbers = sum(numbers)) %>%
-  filter(numbers > 0)
-write.taf(lngth, file = "data/length_data.csv")
-saveRDS(lngth, file = "data/length_data.rds")
-

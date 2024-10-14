@@ -1,5 +1,5 @@
 ### ------------------------------------------------------------------------ ###
-### Apply rfb rule ####
+### Apply chr rule ####
 ### ------------------------------------------------------------------------ ###
 
 ## Before: data/idx.csv
@@ -10,6 +10,7 @@
 library(icesTAF)
 taf.libPaths()
 library(cat3advice)
+# devtools::load_all("../../../data-limited/cat3advice/")
 library(dplyr)
 
 mkdir("model")
@@ -27,59 +28,57 @@ catch_A <- catch %>%
 ### biomass index
 idxB <- read.taf("data/idx.csv")
 
-### catch length data
-lngth <- read.taf("data/length_data.csv")
+### combine catch and index
+catch_idx <- full_join(catch_A, idxB) %>%
+  select(year, index, catch, landings, discards)
+
+### ------------------------------------------------------------------------ ###
+### chr rule control parameters ####
+### ------------------------------------------------------------------------ ###
+chr_pars <- list(n1 = 2, v = 2, w = 1.02, x = 0.58)
+
 
 ### ------------------------------------------------------------------------ ###
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
 ### use last catch advice (advice given in 2022 for 2023 and 2024)
-A <- A(catch_A[catch_A$year <= 2024, ], units = "tonnes", 
+A <- A(catch_A, units = "tonnes", 
        basis = "advice", advice_metric = "catch")
 
 ### ------------------------------------------------------------------------ ###
-### r - biomass index trend/ratio ####
+### I - biomass index ####
 ### ------------------------------------------------------------------------ ###
-### 2 over 3 ratio
-r <- rfb_r(idxB, units = "kg/hr")
+### average of last two values
+I <- chr_I(idxB, n_yrs = chr_pars$n1, units = "kg/(hr m beam)")
+
+
+### ------------------------------------------------------------------------ ###
+### HR - harvest rate target ####
+### ------------------------------------------------------------------------ ###
+
+### 1st: calculate harvest rate over time
+hr <- HR(catch_idx, units_catch = "tonnes", units_index = "kg/(hr m beam)")
+
+### 2nd: calculate harvest rate target
+### include multiplier into target harvest rate (from MSE)
+### -> do not include later for chr component m (set m=1)
+HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
+
 
 ### ------------------------------------------------------------------------ ###
 ### b - biomass safeguard ####
 ### ------------------------------------------------------------------------ ###
-### do not redefine biomass trigger Itrigger and keep value defined in 2022
-### Itrigger based on Iloss (2007)
-b <- rfb_b(idxB, units = "kg/hr", yr_ref = 2007)
-
-### ------------------------------------------------------------------------ ###
-### f - length-based indicator/fishing pressure proxy ####
-### ------------------------------------------------------------------------ ###
-
-### calculate annual length at first capture - for information only
-lc_annual <- Lc(lngth, units = "mm")
-
-### Lc was defined at WGCSE 2022 by using data from 2017:2021
-### keep this definition (do not update Lc)
-#lc <- Lc(lngth, pool = 2017:2021, units = "mm")
-lc <- Lc(264, units = "mm")
-
-### mean annual catch length above Lc
-lmean <- Lmean(lngth, Lc = lc, units = "mm")
-
-### reference length LF=M - keep value calculated at WGCSE 2022
-### Linf calculated by fitting von Bertalanffy model to age-length data
-#lref <- Lref(basis = "LF=M", Lc = lc, Linf = 585, units = "mm")
-lref <- Lref(value = 344.2867278973251, basis = "LF=M", units = "mm")
-
-### length indicator
-f <- rfb_f(Lmean = lmean, Lref = lref, units = "mm")
+### first application of chr rule
+### use definition of Itrigger from WKBPLAICE 2024:
+### - based on Iloss*w in 2007
+b <- chr_b(I, idxB, units = "kg/(hr m beam)", yr_ref = 2007, w = chr_pars$w)
 
 ### ------------------------------------------------------------------------ ###
 ### multiplier ####
 ### ------------------------------------------------------------------------ ###
-### generic multiplier based on life history (von Bertalanffy k)
-### k value from fitting von Bertalanffy model to age-length data
+### set to 1 because multiplier already included in target harvest rate above
 
-m <- rfb_m(k = 0.11)
+m <- chr_m(1, MSE = TRUE)
 
 ### ------------------------------------------------------------------------ ###
 ### discard rate ####
@@ -92,21 +91,26 @@ discard_rate <- catch %>%
   summarise(discard_rate = mean(discard_rate, na.rm = TRUE)) %>% 
   as.numeric()
 
+### ------------------------------------------------------------------------ ###
+### discard survival ####
+### ------------------------------------------------------------------------ ###
+### set to 50% by WKBPLAICE 2024
+discard_survival <- 0.5
 
 ### ------------------------------------------------------------------------ ###
-### apply rfb rule - combine elements ####
+### apply chr rule - combine elements ####
 ### ------------------------------------------------------------------------ ###
 ### includes consideration of stability clause
 
-advice <- rfb(A = A, r = r, f = f, b = b, m = m,
+advice <- chr(A = A, I = I, F = HR, b = b, m = m,
               cap = "conditional", cap_upper = 20, cap_lower = -30,
               frequency = "biennial", 
-              discard_rate = discard_rate * 100)
+              discard_rate = discard_rate * 100,
+              discard_survival = discard_survival * 100)
 
 ### ------------------------------------------------------------------------ ###
 ### save output ####
 ### ------------------------------------------------------------------------ ###
 saveRDS(advice, file = "model/advice.rds")
-saveRDS(lc_annual, file = "model/lc_annual.rds")
 
 
