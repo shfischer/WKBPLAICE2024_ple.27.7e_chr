@@ -23,9 +23,9 @@ mkdir("report/tables")
 ### ------------------------------------------------------------------------ ###
 ### load advice and catch ####
 ### ------------------------------------------------------------------------ ###
-advice <- readRDS("model/advice.rds")
-catch <- read.taf("data/advice_history.csv")
-catch_7d <- read.csv("data/catch_7d.csv")
+# advice <- readRDS("model/advice.rds")
+# catch <- read.taf("data/advice_history.csv")
+# catch_7d <- read.csv("data/catch_7d.csv")
 
 
 ### ------------------------------------------------------------------------ ###
@@ -65,9 +65,9 @@ p_catch <- ggplot() +
                                                     colour = "#002b5f"))
 #p_catch
 
-idx_max <- max(advice@I@idx$index, na.rm = TRUE)
+idx_max <- max(I@idx$index, na.rm = TRUE)
 p_idx <- ggplot() +
-  geom_line(data = advice@I@idx,
+  geom_line(data = I@idx,
                      aes(x = year, y = index),
                      color = "#077c6c",
                      na.rm = TRUE) +
@@ -147,12 +147,12 @@ ggsave("report/figures/hr_versions.png", width = 16, height = 12, units = "cm",
 #        dpi = 300, type = "cairo")
 
 ### biomass index - I and b ####
-plot(advice@b)
+plot(b)
 ggsave("report/figures/chr_b.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
 ### harvest rate
-plot(advice@F, show.data = FALSE)
+plot(HR, show.data = FALSE)
 ggsave("report/figures/chr_HR.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
@@ -164,9 +164,9 @@ ggsave("report/figures/chr_HR.png", width = 10, height = 6, units = "cm",
 
 
 ### print to screen
-advice(advice)
-### save in file
-capture.output(advice(advice), file = "report/tables/advice_table.txt")
+# advice(advice)
+# ### save in file
+# capture.output(advice(advice), file = "report/tables/advice_table.txt")
 
 ### ------------------------------------------------------------------------ ###
 ### advice for 7e area ####
@@ -186,7 +186,7 @@ catch_7d <- catch_7d %>%
   mutate(catch = landings + discards)
 
 ### advice in 7e
-advice_catch_7e <- value(advice) - catch_7d$catch
+advice_catch_7e <- advice_total - catch_7d$catch
 advice_landings_7e <- advice_catch_7e * (1 - discard_rate_7e)
 advice_discards_7e <- advice_catch_7e * discard_rate_7e
 advice_discards_dead_7e <- advice_discards_7e * (1 - discard_survival)
@@ -254,4 +254,4 @@ advice_7e <- paste0(
   paste(rep("-", 80), collapse = ""), "\n"
 )
 cat(advice_7e)
-writeLines(advice_7e, "report/tables/advice_table_7e.txt")
+# writeLines(advice_7e, "report/tables/advice_table_7e.txt")

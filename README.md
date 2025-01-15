@@ -1,14 +1,11 @@
-2024_ple.27.7e_assessment
+2024_ple.27.7e_assessment_WKBPLAICE
 ================
 
-## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WGCSE 2024
+## Plaice (*Pleuronectes platessa*) in Division 7.e (western English Channel) - WKBPLAICE 2024
 
 This repository recreates the stock assessment for plaice (*Pleuronectes
 platessa*) in Division 7.e (western English Channel) in `R` from WGCSE
-2024.
-
-The advice for this plaice stock is biennial and was last given one year
-ago at WGCSE 2022. This repository (2024) is a new assessment.
+2024 - **but with the new chr rule agreed by WKBPLAICE 2024**
 
 ## R packages
 
@@ -29,7 +26,14 @@ They can be installed with:
 ### install/update packages
 install.packages(c("icesTAF", "icesAdvice", "dplyr", "tidyr", "ggplot2"))
 ### install cat3advice from ICES r-universe
-install.packages("cat3advice", repos = c("https://ices-tools-prod.r-universe.dev", "https://cloud.r-project.org"))
+# install.packages("cat3advice", repos = c("https://ices-tools-prod.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+So far, a different branch of the `cat3advice` package is needed, which
+includes the discard survival considerations:
+
+``` r
+remotes::install_github("shfischer/cat3advice", ref = "dev_chr")
 ```
 
 For exact reproducibility, it is recommended to use exactly the same

@@ -22,8 +22,15 @@ mkdir("model")
 ### history of catch and advice
 catch <- read.taf("data/advice_history.csv")
 catch_A <- catch %>%
-  select(year, advice = advice_catch_stock, discards = ICES_discards_stock,
-         landings = ICES_landings_stock , catch = ICES_catch_stock)
+  select(year, 
+         advice = advice_catch_stock, 
+         advice_landings = advice_landings_stock,
+         catch = ICES_catch_stock,
+         landings = ICES_landings_stock, 
+         discards = ICES_discards_stock
+         ) %>%
+  mutate(advice_discards = advice - advice_landings) %>%
+  relocate(advice_discards, .after = advice_landings)
 
 ### biomass index
 idxB <- read.taf("data/idx.csv")
@@ -31,6 +38,12 @@ idxB <- read.taf("data/idx.csv")
 ### combine catch and index
 catch_idx <- full_join(catch_A, idxB) %>%
   select(year, index, catch, landings, discards)
+
+### ------------------------------------------------------------------------ ###
+### discard survival ####
+### ------------------------------------------------------------------------ ###
+### set to 50% by WKBPLAICE 2024
+discard_survival <- 0.5
 
 ### ------------------------------------------------------------------------ ###
 ### chr rule control parameters ####
@@ -42,8 +55,17 @@ chr_pars <- list(n1 = 2, v = 2, w = 3.7, x = 0.66)
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
 ### use last catch advice (advice given in 2022 for 2023 and 2024)
+### use DEAD catch as reference
+catch_A <- catch_A %>%
+  mutate(advice = advice_landings + advice_discards * discard_survival) %>%
+  select(year, advice)
+
+# debugonce(A_calc)
 A <- A(catch_A, units = "tonnes", 
-       basis = "advice", advice_metric = "catch")
+       basis = "advice", advice_metric = "catch", 
+       discard_survival = discard_survival)
+
+# A <- 1056.5
 
 ### ------------------------------------------------------------------------ ###
 ### I - biomass index ####
@@ -51,19 +73,23 @@ A <- A(catch_A, units = "tonnes",
 ### average of last two values
 I <- chr_I(idxB, n_yrs = chr_pars$n1, units = "kg/(hr m beam)")
 
+# I <- 0.71643679885
 
 ### ------------------------------------------------------------------------ ###
 ### HR - harvest rate target ####
 ### ------------------------------------------------------------------------ ###
 
 ### 1st: calculate harvest rate over time
-hr <- HR(catch_idx, units_catch = "tonnes", units_index = "kg/(hr m beam)")
+hr <- HR(catch_idx, units_catch = "tonnes", units_index = "kg/(hr m beam)",
+         split_discards = TRUE,
+         discard_survival = discard_survival)
 
 ### 2nd: calculate harvest rate target
 ### include multiplier into target harvest rate (from MSE)
 ### -> do not include later for chr component m (set m=1)
 HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
 
+# HR <- 1395.32308253007
 
 ### ------------------------------------------------------------------------ ###
 ### b - biomass safeguard ####
@@ -73,12 +99,16 @@ HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
 ### - based on Iloss*w in 2007
 b <- chr_b(I, idxB, units = "kg/(hr m beam)", yr_ref = 2007, w = chr_pars$w)
 
+# b <- 0.690709424407383
+
 ### ------------------------------------------------------------------------ ###
 ### multiplier ####
 ### ------------------------------------------------------------------------ ###
 ### set to 1 because multiplier already included in target harvest rate above
 
 m <- chr_m(1, MSE = TRUE)
+
+# m <- 1
 
 ### ------------------------------------------------------------------------ ###
 ### discard rate ####
@@ -92,25 +122,35 @@ discard_rate <- catch %>%
   as.numeric()
 
 ### ------------------------------------------------------------------------ ###
-### discard survival ####
-### ------------------------------------------------------------------------ ###
-### set to 50% by WKBPLAICE 2024
-discard_survival <- 0.5
-
-### ------------------------------------------------------------------------ ###
 ### apply chr rule - combine elements ####
 ### ------------------------------------------------------------------------ ###
-### includes consideration of stability clause
 
-advice <- chr(A = A, I = I, F = HR, b = b, m = m,
-              cap = "conditional", cap_upper = 20, cap_lower = -30,
-              frequency = "biennial", 
-              discard_rate = discard_rate * 100,
-              discard_survival = discard_survival * 100)
+### CHR rule calculation
+advice_dead <- I@value * HR@value * b@value * m@value
+
+### change
+(advice_dead/A@value - 1) * 100
+
+### corresponding landings
+advice_total <- advice_dead/(1 - discard_rate/2)
+
+advice_landings <- advice_total * (1 - discard_rate)
+advice_discards <- advice_total * discard_rate
+
+# advice_landings + advice_discards/2
+
+change <- (advice_total/1219 - 1) * 100
+
+### chr() not working yet, need to fix the handling of discard survival
+# advice <- chr(A = A, I = I, F = HR, b = b, m = m,
+#               cap = "conditional", cap_upper = 20, cap_lower = -30,
+#               frequency = "biennial",
+#               discard_rate = discard_rate * 100,
+#               discard_survival = discard_survival * 100)
 
 ### ------------------------------------------------------------------------ ###
 ### save output ####
 ### ------------------------------------------------------------------------ ###
-saveRDS(advice, file = "model/advice.rds")
+# saveRDS(advice, file = "model/advice.rds")
 
 
