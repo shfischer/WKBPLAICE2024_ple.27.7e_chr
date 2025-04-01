@@ -11,7 +11,6 @@ library(icesTAF)
 taf.libPaths()
 library(icesAdvice)
 library(cat3advice)
-# devtools::load_all("../../../data-limited/cat3advice/")
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -23,9 +22,9 @@ mkdir("report/tables")
 ### ------------------------------------------------------------------------ ###
 ### load advice and catch ####
 ### ------------------------------------------------------------------------ ###
-# advice <- readRDS("model/advice.rds")
-# catch <- read.taf("data/advice_history.csv")
-# catch_7d <- read.csv("data/catch_7d.csv")
+advice <- readRDS("model/advice.rds")
+catch <- read.taf("data/advice_history.csv")
+catch_7d <- read.csv("data/catch_7d.csv")
 
 
 ### ------------------------------------------------------------------------ ###
@@ -127,6 +126,11 @@ p_hr <- ggplot() +
 ggsave("report/figures/hr_versions.png", width = 16, height = 12, units = "cm",
        dpi = 300, type = "cairo")
 
+### plot final used in chr rule
+plot(advice@F@HR)
+ggsave("report/figures/hr_final.png", width = 16, height = 12, units = "cm",
+       dpi = 300, type = "cairo")
+
 ### ------------------------------------------------------------------------ ###
 ### chr rule - figures ####
 ### ------------------------------------------------------------------------ ###
@@ -147,12 +151,12 @@ ggsave("report/figures/hr_versions.png", width = 16, height = 12, units = "cm",
 #        dpi = 300, type = "cairo")
 
 ### biomass index - I and b ####
-plot(b)
+plot(advice@b)
 ggsave("report/figures/chr_b.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
 ### harvest rate
-plot(HR, show.data = FALSE)
+plot(advice@F, show.data = FALSE)
 ggsave("report/figures/chr_HR.png", width = 10, height = 6, units = "cm",
        dpi = 300, type = "cairo")
 
@@ -164,9 +168,9 @@ ggsave("report/figures/chr_HR.png", width = 10, height = 6, units = "cm",
 
 
 ### print to screen
-# advice(advice)
-# ### save in file
-# capture.output(advice(advice), file = "report/tables/advice_table.txt")
+advice(advice)
+### save in file
+capture.output(advice(advice), file = "report/tables/advice_table.txt")
 
 ### ------------------------------------------------------------------------ ###
 ### advice for 7e area ####
@@ -186,26 +190,27 @@ catch_7d <- catch_7d %>%
   mutate(catch = landings + discards)
 
 ### advice in 7e
-advice_catch_7e <- advice_total - catch_7d$catch
+advice_catch_7e <- advice@advice - catch_7d$catch
 advice_landings_7e <- advice_catch_7e * (1 - discard_rate_7e)
 advice_discards_7e <- advice_catch_7e * discard_rate_7e
-advice_discards_dead_7e <- advice_discards_7e * (1 - discard_survival)
-advice_discards_surviving_7e <- advice_discards_7e * (discard_survival)
+advice_discards_dead_7e <- advice_discards_7e * (1 - discard_survival/100)
+advice_discards_surviving_7e <- advice_discards_7e * (discard_survival/100)
+
+
 
 advice_7e <- paste0(
   paste(rep("-", 80), collapse = ""), "\n",
   "Plaice in Division 7.e", "\n",
   paste(rep("-", 80), collapse = ""), "\n",
-  
-  paste0(format("Catches of Division 7.e stock caught in", width = 48), 
-         " | ", "\n",
-         format("  Division 7.d", width = 48), " | ",
+  paste0(format(paste0("Catch of the stock in Division 7.d in ",
+                       advice@years[1]), width = 48), 
+         " | ", 
          format(paste0(round(catch_7d$catch), " tonnes"), width = 29, 
                 justify = "right"),
          "\n"),
-  paste0(format("Catch of plaice in Division 7.e corresponding", width = 48), 
+  paste0(format("Catch in Division 7.e corresponding to the", width = 48), 
          " | ", "\n",
-         format("  to the advice for the stock", width = 48), " | ",
+         format("   advice for the stock", width = 48), " | ",
          format(paste0(round(advice_catch_7e), " tonnes"), width = 29, 
                 justify = "right"),
          "\n"),
@@ -213,45 +218,26 @@ advice_7e <- paste0(
          format(paste0(icesAdvice::icesRound(discard_rate_7e * 100), "%"), 
                 width = 29, justify = "right")),
          "\n",
-  paste0(format("Projected landings of plaice in Division 7.e", width = 48), 
+  paste0(format("Discard survival", width = 48), " | ", 
+         format(paste0(icesAdvice::icesRound(discard_survival), "%"), 
+                width = 29, justify = "right")),
+  "\n",
+  paste0(format("Landings in Division 7.e corresponding to the", width = 48), 
          " | ", "\n",
-         format("  corresponding to the advice for the stock", width = 48), 
+         format("   advice", width = 48), 
          " | ",
          format(paste0(round(advice_landings_7e), " tonnes"), width = 29, 
                 justify = "right"),
          "\n"),
-  paste0(format("Projected total discards of plaice in Division", width = 48), 
+  paste0(format("Total discards in Division 7.e corresponding to", width = 48), 
          " | ", "\n",
-         format("  7.e corresponding to the advice for the stock", width = 48), 
+         format("   the advice", width = 48), 
          " | ",
          format(paste0(round(advice_discards_7e), " tonnes"), width = 29, 
                 justify = "right"),
          "\n"),
-  paste0(format("Discard survival", width = 48), " | ", 
-         format(paste0(icesAdvice::icesRound(discard_survival * 100), "%"), 
-                width = 29, justify = "right")),
-          "\n",
-  paste0(format("Projected dead discards of plaice in Division", width = 48), 
-         " | ", "\n",
-         format("  7.e corresponding to the advice for the stock", width = 48), 
-         " | ",
-         format(paste0(round(advice_discards_dead_7e), " tonnes"), width = 29, 
-                justify = "right"),
-         "\n"),
-  paste0(format("Projected surviving discards of plaice in", 
-                width = 48),
-         " | ", "\n",
-         format("  Division 7.e corresponding to the advice for", width = 48), 
-         " | ", "\n",
-         format("  the stock", width = 48), 
-         " | ",
-         format(paste0(round(advice_discards_surviving_7e), " tonnes"), 
-                width = 29, 
-                justify = "right"),
-         "\n"),
-  
-  
   paste(rep("-", 80), collapse = ""), "\n"
 )
 cat(advice_7e)
-# writeLines(advice_7e, "report/tables/advice_table_7e.txt")
+
+writeLines(advice_7e, "report/tables/advice_table_7e.txt")

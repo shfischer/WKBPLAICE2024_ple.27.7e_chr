@@ -43,7 +43,7 @@ catch_idx <- full_join(catch_A, idxB) %>%
 ### discard survival ####
 ### ------------------------------------------------------------------------ ###
 ### set to 50% by WKBPLAICE 2024
-discard_survival <- 0.5
+discard_survival <- 50
 
 ### ------------------------------------------------------------------------ ###
 ### chr rule control parameters ####
@@ -55,17 +55,15 @@ chr_pars <- list(n1 = 2, v = 2, w = 3.7, x = 0.66)
 ### reference catch ####
 ### ------------------------------------------------------------------------ ###
 ### use last catch advice (advice given in 2022 for 2023 and 2024)
-### use DEAD catch as reference
-catch_A <- catch_A %>%
-  mutate(advice = advice_landings + advice_discards * discard_survival) %>%
-  select(year, advice)
+### chr_A() calculates proportion of previous advice with discard_survival
 
 # debugonce(A_calc)
-A <- A(catch_A, units = "tonnes", 
-       basis = "advice", advice_metric = "catch", 
-       discard_survival = discard_survival)
-
+A <- chr_A(catch_A, units = "tonnes", 
+           basis = "advice", advice_metric = "catch", 
+           discard_survival = discard_survival)
+# A
 # A <- 1056.5
+# advice(A)
 
 ### ------------------------------------------------------------------------ ###
 ### I - biomass index ####
@@ -87,6 +85,8 @@ hr <- HR(catch_idx, units_catch = "tonnes", units_index = "kg/(hr m beam)",
 ### 2nd: calculate harvest rate target
 ### include multiplier into target harvest rate (from MSE)
 ### -> do not include later for chr component m (set m=1)
+### use definition from WKBPLAICE 2024:
+### - average values 2003-2023 * 0.66
 HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
 
 # HR <- 1395.32308253007
@@ -116,7 +116,7 @@ m <- chr_m(1, MSE = TRUE)
 discard_rate <- catch %>%
   select(year, discards = ICES_discards_stock, landings = ICES_landings_stock,
          catch = ICES_catch_stock) %>%
-  mutate(discard_rate = discards/catch) %>%
+  mutate(discard_rate = discards/catch * 100) %>%
   filter(year >= 2012) %>%
   summarise(discard_rate = mean(discard_rate, na.rm = TRUE)) %>% 
   as.numeric()
@@ -126,31 +126,29 @@ discard_rate <- catch %>%
 ### ------------------------------------------------------------------------ ###
 
 ### CHR rule calculation
-advice_dead <- I@value * HR@value * b@value * m@value
-
+# advice_dead <- value(I) * value(HR) * value(b) * value(m)
 ### change
-(advice_dead/A@value - 1) * 100
-
-### corresponding landings
-advice_total <- advice_dead/(1 - discard_rate/2)
-
-advice_landings <- advice_total * (1 - discard_rate)
-advice_discards <- advice_total * discard_rate
-
+# (advice_dead/value(A) - 1) * 100
+### corresponding total catch
+# advice_total <- advice_dead/(1 - discard_rate/2)
+# 
+# advice_landings <- advice_total * (1 - discard_rate)
+# advice_discards <- advice_total * discard_rate
 # advice_landings + advice_discards/2
+# change <- (advice_total/1219 - 1) * 100
 
-change <- (advice_total/1219 - 1) * 100
-
-### chr() not working yet, need to fix the handling of discard survival
-# advice <- chr(A = A, I = I, F = HR, b = b, m = m,
-#               cap = "conditional", cap_upper = 20, cap_lower = -30,
-#               frequency = "biennial",
-#               discard_rate = discard_rate * 100,
-#               discard_survival = discard_survival * 100)
+advice <- chr(A = A, I = I, F = HR, b = b, m = m,
+              #cap = "conditional", cap_upper = 20, cap_lower = -30,
+              frequency = "biennial",
+              discard_rate = discard_rate,
+              discard_survival = discard_survival,
+              units = "tonnes", advice_metric = "catch")
+# advice
+# advice(advice)
 
 ### ------------------------------------------------------------------------ ###
 ### save output ####
 ### ------------------------------------------------------------------------ ###
-# saveRDS(advice, file = "model/advice.rds")
+saveRDS(advice, file = "model/advice.rds")
 
 
