@@ -2,12 +2,12 @@
 ### Preprocess data, write TAF data tables ####
 ### ------------------------------------------------------------------------ ###
 
-## Before: boot/data/FSP7e.csv
-##         boot/data/advice/advice_history.csv
-##         boot/data/InterCatch_length.csv
-## After:  data/idx.csv
-##         data/advice_history.csv
-##         data/length_data.rds
+## Before: boot/data/FSP_biomass.csv
+##         boot/data/advice_history.csv
+##         boot/data/ple7d_STF_removals_from_7e_2024.csv
+## After:  data/idx.csv & .rds
+##         data/advice_history.csv & .rds
+##         data/catch_7d.csv
 
 library(icesTAF)
 taf.libPaths()
