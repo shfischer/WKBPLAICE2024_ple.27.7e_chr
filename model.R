@@ -48,7 +48,19 @@ discard_survival <- 50
 ### ------------------------------------------------------------------------ ###
 ### chr rule control parameters ####
 ### ------------------------------------------------------------------------ ###
-chr_pars <- list(n1 = 2, v = 2, w = 3.7, x = 0.66)
+### control parameters were defined at ICES WKBPLAICE in 2024
+### in 2025, several data sources were revised:
+### - UK landings & discards for 2021-2023
+### - UK FSP index values for 2022-2023 -> also affected earlier years
+### - WKBNSCS 2025 revised catch data for ple.27.7e -> affected migration catch
+
+### the absolute values for Itrigger and HRtarget are kept from WKBPLAICE
+### but because the historical catches and biomass index values changed,
+### the values for x needs to be adapted:
+chr_pars <- list(n1 = 2, 
+                 v = 2, 
+                 w = 3.7, 
+                 x = 0.66/1.06682634070264015235807164572179317474365234375)
 
 
 ### ------------------------------------------------------------------------ ###
@@ -71,7 +83,7 @@ A <- chr_A(catch_A, units = "tonnes",
 ### average of last two values
 I <- chr_I(idxB, n_yrs = chr_pars$n1, units = "kg/(hr m beam)")
 
-# I <- 0.71643679885
+# I <- 0.681785375
 
 ### ------------------------------------------------------------------------ ###
 ### HR - harvest rate target ####
@@ -86,10 +98,10 @@ hr <- HR(catch_idx, units_catch = "tonnes", units_index = "kg/(hr m beam)",
 ### include multiplier into target harvest rate (from MSE)
 ### -> do not include later for chr component m (set m=1)
 ### use definition from WKBPLAICE 2024:
-### - average values 2003-2023 * 0.66
+### - average values 2003-2023 * 0.66/1.06682634070264015235807164572179317474365234375
 HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
 
-# HR <- 1395.32308253007
+# HR <- 1424.39317572753
 
 ### ------------------------------------------------------------------------ ###
 ### b - biomass safeguard ####
@@ -99,7 +111,7 @@ HR <- F(hr, yr_ref = 2003:2023, MSE = TRUE, multiplier = chr_pars$x)
 ### - based on Iloss*w in 2007
 b <- chr_b(I, idxB, units = "kg/(hr m beam)", yr_ref = 2007, w = chr_pars$w)
 
-# b <- 0.690709424407383
+# b <- 0.657302341068176
 
 ### ------------------------------------------------------------------------ ###
 ### multiplier ####
